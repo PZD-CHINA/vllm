@@ -40,6 +40,7 @@ _LOCAL_LOGGING_INTERVAL_SEC = 5
 DEVICE_TO_WORKER_MODULE_MAP = {
     "cuda": "vllm.worker.worker",
     "neuron": "vllm.worker.neuron_worker",
+    "cpu": "vllm.worker.cpu_worker",
 }
 
 # If the env var is set, it uses the Ray's compiled DAG API

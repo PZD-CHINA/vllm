@@ -409,6 +409,40 @@ def generate_vllm_cuda_extension():
     return get_vllm_version(), get_requirements(), ext_modules
 
 
+def generate_vllm_cpu_extension():
+    from torch.utils.cpp_extension import CppExtension
+    # Compiler flags.
+    CXX_FLAGS = ["-g", "-O2", "-std=c++17", "-DVLLM_TARGET_CPU", "-fopenmp", "-mavx512f", "-mavx512bf16", "-mavx512vl", "-mavx512bw", "-mavx512dq"]
+    ABI = 1 if torch._C._GLIBCXX_USE_CXX11_ABI else 0
+    CXX_FLAGS += [f"-D_GLIBCXX_USE_CXX11_ABI={ABI}"]
+    ext_modules = []
+    vllm_extension_sources = [
+        "csrc/cpu/activation.cpp",
+        "csrc/cpu/attention.cpp",
+        "csrc/cpu/cache.cpp",
+        "csrc/cpu/layernorm.cpp",
+        "csrc/cpu/pos_encoding.cpp",
+        "csrc/pybind.cpp",
+    ]
+    
+    vllm_extension = CppExtension(
+            name="vllm._C",
+            sources=vllm_extension_sources,
+            extra_compile_args={
+                "cxx": CXX_FLAGS,
+            },
+            libraries=[],
+    )
+    ext_modules.append(vllm_extension)
+    version = find_version(get_path("vllm", "__init__.py"))
+    version += "+cpu"
+
+    with open(get_path("requirements-cpu.txt")) as f:
+        requirements = f.read().strip().split("\n")
+
+    return version, requirements, ext_modules
+    
+
 def get_path(*filepath) -> str:
     return os.path.join(ROOT_DIR, *filepath)
 
@@ -444,6 +478,9 @@ if os.environ.get("VLLM_USE_PRECOMPILED"):
 
 if VLLM_TARGET_DEVICE == "cuda" or VLLM_TARGET_DEVICE == "neuron" or VLLM_TARGET_DEVICE == "rocm":
     vllm_version, vllm_requirements, ext_modules = generate_vllm_cuda_extension(
+    )
+elif VLLM_TARGET_DEVICE == "cpu":
+    vllm_version, vllm_requirements, ext_modules = generate_vllm_cpu_extension(
     )
 
 setuptools.setup(
