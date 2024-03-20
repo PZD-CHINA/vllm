@@ -35,7 +35,7 @@ class EngineArgs:
     quantization: Optional[str] = None
     enforce_eager: bool = False
     max_context_len_to_capture: int = 8192
-    device: str = 'cuda'
+    device: str = 'cpu'
 
     def __post_init__(self):
         if self.tokenizer is None:
