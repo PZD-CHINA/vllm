@@ -1,5 +1,6 @@
 # This vLLM Dockerfile is used to construct image that can build and run vLLM on x86 CPU platform.
-# Based on https://github.com/PZD-CHINA/vllm/commit/55e1b7b54e916a3a930fc92fadca8a61adf9ace7
+# Based on https://github.com/PZD-CHINA/vllm/blob/55e1b7b54e916a3a930fc92fadca8a61adf9ace7/Dockerfile.cpu
+
 FROM ubuntu:22.04
 
 RUN apt-get update  -y \
@@ -12,8 +13,10 @@ RUN pip install --proxy http://child-prc.intel.com:913 torch==2.1.2+cpu --index-
 
 RUN pip install langchain --proxy http://child-prc.intel.com:913
 
-# TODO: link to selected url
-COPY ./ /workspace/vllm
+RUN pip install --proxy http://child-prc.intel.com:913 pyspark pyspark-ai
+
+RUN git config --global http.proxy http://child-prc.intel.com:913
+RUN git clone -b vllm-cpu-only https://github.com/PZD-CHINA/vllm.git /workspace/vllm
 
 WORKDIR /workspace/vllm
 
