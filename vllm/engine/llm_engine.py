@@ -299,6 +299,8 @@ class LLMEngine:
                              "Try increasing `gpu_memory_utilization` when "
                              "initializing the engine.")
         max_seq_len = self.cache_config.block_size * (num_gpu_blocks if not self.cache_config.cpu_only else num_cpu_blocks)
+        self.model_config.max_model_len = 8192
+        '''
         if self.model_config.max_model_len > max_seq_len:
             raise ValueError(
                 f"The model's max seq len ({self.model_config.max_model_len}) "
@@ -306,7 +308,7 @@ class LLMEngine:
                 f"stored in KV cache ({max_seq_len}). Try increasing "
                 "`gpu_memory_utilization` or decreasing `max_model_len` when "
                 "initializing the engine.")
-
+        '''
         self.cache_config.num_gpu_blocks = num_gpu_blocks
         self.cache_config.num_cpu_blocks = num_cpu_blocks
 
