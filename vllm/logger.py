@@ -70,7 +70,8 @@ def init_logger(name: str):
 def init_perf_logger(name: str):
     logger = logging.getLogger("perf_{}".format(name))
     logger.setLevel(os.getenv("LOGGING", "WARNING"))
-    csv_handler = logging.FileHandler("perf_{}_log_{}.csv".format(name, time.perf_counter_ns()))
+    # csv_handler = logging.FileHandler("perf_{}_log_{}.csv".format(name, time.perf_counter_ns()))
+    csv_handler = logging.FileHandler("perf_{}_log.csv".format(name))
     logger.addHandler(csv_handler)
     logger.propagate = False
     return logger

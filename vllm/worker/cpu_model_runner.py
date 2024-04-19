@@ -397,15 +397,18 @@ class CPUModelRunner:
             "attn_metadata": attn_metadata,
         }
 
-        perf_logger.info("start,{},{},{},{}".format(attn_metadata.is_prompt, len(attn_metadata.prompt_lens) if attn_metadata.is_prompt else input_tokens.shape[0], max(attn_metadata.prompt_lens) if attn_metadata.is_prompt else 1, time.perf_counter_ns()))
+        gen_token_start_time=time.perf_counter_ns()
 
         hidden_states = model_executable(**execute_model_kwargs)
 
         # Compute the logits.
         logits = self.model.compute_logits(hidden_states, sampling_metadata)
 
-        perf_logger.info("end,{},{},{},{}".format(attn_metadata.is_prompt, len(attn_metadata.prompt_lens) if attn_metadata.is_prompt else input_tokens.shape[0], max(attn_metadata.prompt_lens) if attn_metadata.is_prompt else 1, time.perf_counter_ns()))     
-        
+        gen_token_end_time = time.perf_counter_ns()
+        token_latency_ns = gen_token_end_time - gen_token_start_time
+        token_latency_s = token_latency_ns / 1e9 
+        perf_logger.info("{}".format(token_latency_s))
+
         # Only perform sampling in the driver worker.
         if not sampling_metadata.perform_sampling:
             return None
